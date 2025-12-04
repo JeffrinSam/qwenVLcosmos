@@ -1,0 +1,14 @@
+{
+    "inference_type": "image2world",
+    "name": "so1_arm_pick_bottle3",
+    "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/Inputimg/mobil/5.jpg",
+    "prompt": "PHYSICAL SIMULATION: ROBOTIC ARM OBJECT MANIPULATION. \n\n[SETUP]: The input image shows a SO1 robotic arm with an open gripper positioned near a water bottle on a table. \n[CAMERA STATE]: The camera is STATIC and fixed in position, capturing the motion of the robotic arm. CAMERA VELOCITY = 0. The background table and environment are FROZEN and do not move.\n[ACTION VECTOR]: The SO1 robotic arm extends its articulated segments towards the water bottle. The gripper slowly closes around the bottle, grasps it firmly, and lifts it vertically upward in a smooth motion. \n[OUTCOME]: The bottle is securely held by the gripper and moves with the arm as it lifts, with no slipping or falling, demonstrating precise pick-and-place operation.",
+    "enable_autoregressive": false,
+    "num_output_frames": 77,
+    "chunk_size": 77,
+    "chunk_overlap": 1,
+    "resolution":"704,1280",
+    "seed": 42,
+    "guidance": 7,
+    "negative_prompt": "human hands, camera movement, shaking, blurred motion, bottle falling, gripper missing, distorted arm, floating objects, changing background, low quality"
+}

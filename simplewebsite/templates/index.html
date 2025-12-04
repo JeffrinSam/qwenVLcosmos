@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmos Predict 2.5 - Image to World Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>COSMOS PREDICT 2.5</h1>
+            <p class="subtitle">Image to World Generator</p>
+        </header>
+
+        <main>
+            <form id="generate-form" enctype="multipart/form-data">
+                <!-- Image Upload Section -->
+                <section class="upload-section">
+                    <div id="drop-zone" class="drop-zone">
+                        <div class="drop-zone-content">
+                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <h3>Drag & Drop Image Here</h3>
+                            <p>or click to browse</p>
+                            <p class="file-info">Supported: JPG, PNG, WEBP (max 50MB)</p>
+                        </div>
+                        <input type="file" id="image-upload" name="image" accept="image/jpeg,image/jpg,image/png,image/webp" required hidden>
+                    </div>
+                    <div id="preview-container" class="preview-container" style="display: none;">
+                        <img id="image-preview" class="image-preview" alt="Preview">
+                        <button type="button" id="remove-image" class="remove-btn">Remove</button>
+                    </div>
+                </section>
+
+                <!-- Prompt Section -->
+                <section class="prompt-section">
+                    <label for="prompt">Prompt</label>
+                    <textarea id="prompt" name="prompt" rows="6" required placeholder="Describe the physical simulation you want to generate...
+
+Example:
+PHYSICAL SIMULATION: GROUND ROBOT APPROACH.
+
+[SETUP]: The input image contains a grey wheeled UGV on an office carpet.
+[CAMERA STATE]: The camera is a STATIC TRIPOD fixed at floor level. CAMERA VELOCITY = 0.
+[ACTION VECTOR]: The UGV robot pivots 180 degrees to face the lens, then accelerates towards the camera.
+[OUTCOME]: Robot stays on ground and gets larger in frame as it approaches viewer."></textarea>
+                </section>
+
+                <!-- Advanced Settings -->
+                <section class="advanced-section">
+                    <h2>Advanced Settings</h2>
+
+                    <div class="form-group">
+                        <label for="negative_prompt">Negative Prompt</label>
+                        <textarea id="negative_prompt" name="negative_prompt" rows="3">{{ default_negative_prompt }}</textarea>
+                        <p class="help-text">Describe what you DON'T want in the video</p>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="num_output_frames">Number of Output Frames</label>
+                            <input type="number" id="num_output_frames" name="num_output_frames" value="77" min="1" max="1000">
+                            <p class="help-text">77 frames ≈ 3.2 seconds at 24fps</p>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label>
+                                <input type="checkbox" id="enable_autoregressive" name="enable_autoregressive" checked>
+                                <span>Enable Autoregressive Mode</span>
+                            </label>
+                            <p class="help-text">For generating longer videos</p>
+                        </div>
+                    </div>
+
+                    <div id="chunk-settings" class="chunk-settings">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="chunk_size">Chunk Size</label>
+                                <input type="number" id="chunk_size" name="chunk_size" value="77" min="1" max="200">
+                                <p class="help-text">Frames per generation chunk</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="chunk_overlap">Chunk Overlap</label>
+                                <input type="number" id="chunk_overlap" name="chunk_overlap" value="1" min="0" max="10">
+                                <p class="help-text">Overlapping frames for smooth transitions</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="resolution_preset">Resolution Preset</label>
+                            <select id="resolution_preset" name="resolution_preset">
+                                <optgroup label="720p Quality (Default for 2B Model)">
+                                    <option value="704,1280" selected>704 x 1280 (9:16 Vertical) - Default</option>
+                                    <option value="1280,704">1280 x 704 (16:9 Widescreen)</option>
+                                    <option value="960,960">960 x 960 (1:1 Square)</option>
+                                    <option value="960,704">960 x 704 (4:3 Landscape)</option>
+                                    <option value="704,960">704 x 960 (3:4 Portrait)</option>
+                                </optgroup>
+                                <optgroup label="720p Standard">
+                                    <option value="720,1280">720 x 1280 (9:16 Vertical)</option>
+                                    <option value="1280,720">1280 x 720 (16:9 Widescreen)</option>
+                                    <option value="960,960">960 x 960 (1:1 Square)</option>
+                                    <option value="960,720">960 x 720 (4:3 Landscape)</option>
+                                    <option value="720,960">720 x 960 (3:4 Portrait)</option>
+                                </optgroup>
+                                <optgroup label="480p Quality (Faster Generation)">
+                                    <option value="432,768">432 x 768 (9:16 Vertical)</option>
+                                    <option value="768,432">768 x 432 (16:9 Widescreen)</option>
+                                    <option value="640,480">640 x 480 (4:3 Landscape)</option>
+                                    <option value="480,640">480 x 640 (3:4 Portrait)</option>
+                                    <option value="480,480">480 x 480 (1:1 Square)</option>
+                                </optgroup>
+                                <optgroup label="480p Standard">
+                                    <option value="480,832">480 x 832 (9:16 Vertical)</option>
+                                    <option value="832,480">832 x 480 (16:9 Widescreen)</option>
+                                    <option value="640,640">640 x 640 (1:1 Square)</option>
+                                </optgroup>
+                                <optgroup label="512p Quality">
+                                    <option value="384,640">384 x 640 (9:16 Vertical)</option>
+                                    <option value="640,384">640 x 384 (16:9 Widescreen)</option>
+                                    <option value="640,512">640 x 512 (4:3 Landscape)</option>
+                                    <option value="512,640">512 x 640 (3:4 Portrait)</option>
+                                    <option value="512,512">512 x 512 (1:1 Square)</option>
+                                </optgroup>
+                                <optgroup label="1080p Quality (High Memory)">
+                                    <option value="1056,1920">1056 x 1920 (9:16 Vertical)</option>
+                                    <option value="1920,1056">1920 x 1056 (16:9 Widescreen)</option>
+                                    <option value="1440,1056">1440 x 1056 (4:3 Landscape)</option>
+                                    <option value="1056,1440">1056 x 1440 (3:4 Portrait)</option>
+                                    <option value="1024,1024">1024 x 1024 (1:1 Square)</option>
+                                </optgroup>
+                                <optgroup label="Custom">
+                                    <option value="custom">Custom Resolution...</option>
+                                </optgroup>
+                            </select>
+                            <p class="help-text">Higher resolutions require more GPU memory. 720p is recommended for 2B model.</p>
+                        </div>
+                    </div>
+
+                    <div id="custom-resolution" class="form-row" style="display: none;">
+                        <div class="form-group">
+                            <label for="resolution_height">Custom Height</label>
+                            <input type="number" id="resolution_height" name="resolution_height" value="432" min="128" max="2048" step="8">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="resolution_width">Custom Width</label>
+                            <input type="number" id="resolution_width" name="resolution_width" value="768" min="128" max="2048" step="8">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="seed">Seed</label>
+                            <input type="number" id="seed" name="seed" value="42" min="0" max="2147483647">
+                            <p class="help-text">For reproducible results</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="guidance">Guidance Scale</label>
+                            <input type="number" id="guidance" name="guidance" value="7" min="0" max="7">
+                            <p class="help-text">0-7: Higher = closer to prompt</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Submit Button -->
+                <section class="submit-section">
+                    <button type="submit" id="submit-btn" class="submit-btn">
+                        <span id="submit-text">Generate Video</span>
+                        <div id="submit-spinner" class="spinner" style="display: none;"></div>
+                    </button>
+                </section>
+            </form>
+        </main>
+
+        <footer>
+            <p>Cosmos Predict 2.5 by NVIDIA | Simple Web Interface</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

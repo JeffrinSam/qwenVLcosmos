@@ -1,0 +1,14 @@
+{
+  "name": "mobile_robot_1",
+  "prompt_path": "/home/humanoid/Downloads/cosmos-predict2.5/Inputimg/ugv/1.jpg",
+  "prompt": "pick up the object ",
+  "seed": 43,
+  "guidance": 7.0,
+  "inference_type": "image2world",
+  "num_output_frames": 144,
+  "resolution": "432,768",
+  "enable_autoregressive": true,
+  "chunk_size": 77,
+  "chunk_overlap": 1,
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/Inputimg/mobil/8.jpg"
+}

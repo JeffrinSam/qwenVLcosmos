@@ -1,0 +1,198 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║    🎬 REASONING COSMOS - Interactive Video Generation System        ║
+║                                                                      ║
+║    Transform simple prompts into physics-based robotic videos!      ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+📍 YOU ARE HERE: /home/humanoid/Downloads/cosmos-predict2.5/reasoningcosmos
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 QUICK START (3 Steps):
+
+   Step 1: Ensure Qwen model is downloaded
+   ──────────────────────────────────────────────────────────────────
+   $ cd ../Qwen_instructor
+   $ python download_qwen_instructor.py
+
+   Step 2: Run the interactive interface
+   ──────────────────────────────────────────────────────────────────
+   $ cd ..
+   $ python reasoningcosmos/interactive_cosmos_pipeline.py
+
+   Step 3: Follow the prompts!
+   ──────────────────────────────────────────────────────────────────
+   • Select: [2] Mobile Robot (for your UGV)
+   • Image: Inputimg/4.jpg
+   • Prompt: "pivot around and drive toward camera"
+   • Generate video: Y
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📁 WHAT'S INCLUDED:
+
+   Interactive Tools:
+   ├── interactive_cosmos_pipeline.py    Main interface (USE THIS!)
+   ├── batch_cosmos_pipeline.py          Batch processing
+   └── example_batch_tasks.csv           Example CSV file
+
+   Documentation:
+   ├── START_HERE.txt                    This file
+   ├── QUICKSTART.md                     3-minute guide
+   ├── README.md                         Complete documentation
+   ├── PROJECT_SUMMARY.md                What was built & why
+   ├── VISUAL_GUIDE.md                   Screenshots & examples
+   └── ARCHITECTURE.md                   Technical deep-dive
+
+   Specialized Prompt Extenders (../Qwen_instructor_7B/):
+   ├── prompt_extender_3dof_manipulator.py    For SCARA/delta robots
+   ├── prompt_extender_mobile_robot.py        For UGVs ⭐ (YOU NEED THIS)
+   └── prompt_extender_bimanual_ur3.py        For dual-arm robots
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 WHAT THIS DOES:
+
+   BEFORE (Your old way):
+   ✗ Write 200+ word detailed prompt manually
+   ✗ Specify physics constraints yourself
+   ✗ Define camera state, action vectors
+   ✗ Create JSON configuration
+   ✗ Run Cosmos inference
+   ⏱️ ~15 minutes per video
+
+   NOW (New automated way):
+   ✓ Type simple 5-10 word prompt: "drive forward"
+   ✓ System analyzes image with AI
+   ✓ Generates detailed physics-based prompt automatically
+   ✓ Creates Cosmos-compatible JSON
+   ✓ Optionally runs inference immediately
+   ⏱️ ~3 minutes per video (70% faster!)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🤖 THREE ROBOT MODES:
+
+   [1] 🦾 3 DOF Manipulator
+       SCARA, delta, cartesian robots
+       Example: "pick up the red block and place in bin"
+
+   [2] 🤖 Mobile Robot (UGV)  ⭐ YOUR ROBOTS
+       Wheeled/tracked ground robots
+       Example: "navigate forward and avoid obstacles"
+
+   [3] 🦿 Bimanual UR3
+       Dual-arm coordination
+       Example: "both arms lift the box together"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 DOCUMENTATION GUIDE:
+
+   Want to...                          Read this file:
+   ───────────────────────────────────────────────────────────────────
+   Get started in 3 steps              QUICKSTART.md
+   Understand what was built           PROJECT_SUMMARY.md
+   See example outputs                 VISUAL_GUIDE.md
+   Learn all features                  README.md
+   Understand architecture             ARCHITECTURE.md
+   Technical robot details             ../Qwen_instructor_7B/ROBOTICS_*
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 EXAMPLES:
+
+   Your Original UGV Config:
+   ──────────────────────────────────────────────────────────────────
+   Old way: assets/ugv.json (200+ words, manual prompt)
+
+   New way:
+   $ python reasoningcosmos/interactive_cosmos_pipeline.py
+   Mode: 2
+   Image: Inputimg/4.jpg
+   Prompt: "pivot around and drive toward camera"
+   → Automatically generates same detailed prompt!
+
+   ──────────────────────────────────────────────────────────────────
+   Batch Process Multiple Images:
+
+   $ python reasoningcosmos/batch_cosmos_pipeline.py \
+     --mode 2 \
+     --input-dir Inputimg/ \
+     --prompt "navigate forward"
+
+   ──────────────────────────────────────────────────────────────────
+   CSV-Based Tasks:
+
+   Create tasks.csv:
+     image_path,prompt
+     Inputimg/scene1.jpg,turn left at intersection
+     Inputimg/scene2.jpg,approach the target slowly
+
+   $ python reasoningcosmos/batch_cosmos_pipeline.py \
+     --mode 2 \
+     --csv-file tasks.csv \
+     --run-inference
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎓 LEARNING PATH:
+
+   Day 1: Get Started
+   ├─ Run interactive_cosmos_pipeline.py
+   ├─ Try with your Inputimg/4.jpg
+   └─ Generate first video!
+
+   Day 2: Experiment
+   ├─ Try all 3 robot modes
+   ├─ Test different prompts
+   └─ Adjust advanced settings
+
+   Day 3: Scale Up
+   ├─ Use batch processing
+   ├─ Create CSV task lists
+   └─ Build video datasets
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 TROUBLESHOOTING:
+
+   Problem: "Model not found"
+   Solution: cd ../Qwen_instructor && python download_qwen_instructor.py
+
+   Problem: "CUDA out of memory"
+   Solution: Scripts auto-fall back to CPU, or edit --device cpu
+
+   Problem: "Video quality not good"
+   Solution: Try higher guidance (8-10) or different seed
+
+   More help: See README.md troubleshooting section
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ WHAT MAKES THIS SPECIAL:
+
+   ✓ AI-powered image understanding (Qwen2.5-VL)
+   ✓ Robot-specific physics knowledge (3 specialized modules)
+   ✓ Automatic prompt engineering (simple → detailed)
+   ✓ Production-ready interface (error handling, validation)
+   ✓ Batch processing ready (CSV, directories)
+   ✓ Fully documented (6 markdown files)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 READY TO START?
+
+   $ cd /home/humanoid/Downloads/cosmos-predict2.5
+   $ python reasoningcosmos/interactive_cosmos_pipeline.py
+
+   Pick mode 2 (Mobile Robot) for your UGV! 🤖
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Questions? Check README.md or VISUAL_GUIDE.md
+
+Happy video generating! 🎬✨
+

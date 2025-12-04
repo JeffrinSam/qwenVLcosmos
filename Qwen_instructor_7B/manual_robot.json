@@ -1,0 +1,11 @@
+{
+  "name": "manual_robot",
+  "inference_type": "image2world",
+  "input_path": "../Inputimg/robot.jpg",
+  "prompt": "STATIC CAMERA: 1.5m height, 45-degree view. Robot arm moves from left to right at 10cm/s over 3 seconds. Smooth acceleration. Physics: gravity, no teleportation.",
+  "negative_prompt": "unrealistic motion, teleportation, blurry",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7
+}

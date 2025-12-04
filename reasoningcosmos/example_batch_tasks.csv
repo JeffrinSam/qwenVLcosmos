@@ -1,0 +1,4 @@
+image_path,prompt
+Inputimg/4.jpg,navigate forward toward the camera slowly
+Inputimg/ugv/1.jpg,turn right and approach the target
+Inputimg/ugv/2.jpg,move backward while avoiding obstacles

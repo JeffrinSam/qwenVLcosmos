@@ -1,0 +1,13 @@
+{
+  "name": "bimanual_ur3_text_pick_apple",
+  "prompt": "[CAMERA STATE]: - STATIC CAMERA: Frontal view, 2m from workspace - CAMERA VELOCITY = 0 - FOV: Must capture both LEFT and RIGHT arms simultaneously - Background: FROZEN [ACTION - DUAL-ARM]: - Coordination Mode: SYNCHRONIZED - LEFT ARM: * Starting: TCP at 25cm left of center, 30cm height * Motion: t=0: moves right 20cm at 12 cm/s * Gripper: \"opens to 3cm at t=0\", closes to 1cm at t=0.5s * Final: TCP at 45cm right of center, 30cm height - RIGHT ARM: * Starting: TCP at 25cm right of center, 30cm height * Motion: synchronized with LEFT ARM * Gripper: \"opens to 3cm at t=0\", closes to 1cm at t=0.5s * Final: TCP at 45cm right of center, 30cm height Task: \"coordinate left arm to open gripper, right arm to close gripper simultaneously\" [PHYSICS]: - Joint speeds: max 180°/s, smooth acceleration - Collision avoidance: 5cm minimum separation - 500mm reach limit per arm, 3kg payload max per arm - No instant motion, coordinated dynamics - Objects remain rigid",
+  "negative_prompt": "arm collision, unrealistic joint angles, over-extension beyond 500mm reach, payload exceeding 3kg without slow-down, instant motion without acceleration, teleportation, arms passing through each other, gripper failure, object morphing, unrealistic speed, jerky motion, joint angle violations, single arm operation when bimanual coordination needed, poor synchronization, timing errors in handoff, shaky camera, motion blur, out of focus, inconsistent lighting, missing arm visibility.",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "text2world",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "enable_autoregressive": true,
+  "chunk_size": 77,
+  "chunk_overlap": 1
+}

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generation Status - Cosmos Predict 2.5</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Generation Status</h1>
+            <p class="subtitle">Job ID: <span id="job-id">{{ job_id }}</span></p>
+        </header>
+
+        <main>
+            <!-- Status Section -->
+            <section class="status-section">
+                <div class="status-card">
+                    <div class="status-header">
+                        <h2>Status: <span id="status" class="status-badge">Loading...</span></h2>
+                    </div>
+
+                    <div class="progress-container">
+                        <div id="progress-bar" class="progress-bar">
+                            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <p id="progress-text" class="progress-text">0%</p>
+                    </div>
+
+                    <p id="stage" class="status-stage">Initializing...</p>
+                </div>
+            </section>
+
+            <!-- Video Preview Section -->
+            <section id="video-section" class="video-section" style="display: none;">
+                <h2>Video Preview</h2>
+                <div class="video-container">
+                    <video id="video-player" controls>
+                        <source id="video-source" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <div class="download-buttons">
+                    <a id="download-video-btn" href="#" class="btn btn-primary" download>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download Video
+                    </a>
+                    <a id="download-config-btn" href="#" class="btn btn-secondary" download>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        Download Config
+                    </a>
+                    <a href="/" class="btn btn-tertiary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <line x1="19" y1="12" x2="5" y2="12"/>
+                            <polyline points="12 19 5 12 12 5"/>
+                        </svg>
+                        Back to Home
+                    </a>
+                </div>
+            </section>
+
+            <!-- Error Section -->
+            <section id="error-section" class="error-section" style="display: none;">
+                <div class="error-card">
+                    <h2>Generation Failed</h2>
+                    <p id="error-message"></p>
+                    <a href="/" class="btn btn-primary">Back to Home</a>
+                </div>
+            </section>
+
+            <!-- Settings Used -->
+            <section class="settings-section">
+                <details>
+                    <summary><h2>Settings Used</h2></summary>
+                    <div id="settings-content" class="settings-content">
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <strong>Prompt:</strong>
+                                <p id="setting-prompt">-</p>
+                            </div>
+                            <div class="setting-item">
+                                <strong>Negative Prompt:</strong>
+                                <p id="setting-negative-prompt">-</p>
+                            </div>
+                            <div class="setting-item">
+                                <strong>Frames:</strong>
+                                <p id="setting-frames">-</p>
+                            </div>
+                            <div class="setting-item">
+                                <strong>Resolution:</strong>
+                                <p id="setting-resolution">-</p>
+                            </div>
+                            <div class="setting-item">
+                                <strong>Seed:</strong>
+                                <p id="setting-seed">-</p>
+                            </div>
+                            <div class="setting-item">
+                                <strong>Guidance:</strong>
+                                <p id="setting-guidance">-</p>
+                            </div>
+                            <div class="setting-item">
+                                <strong>Autoregressive:</strong>
+                                <p id="setting-autoregressive">-</p>
+                            </div>
+                            <div class="setting-item">
+                                <strong>Chunk Size:</strong>
+                                <p id="setting-chunk-size">-</p>
+                            </div>
+                            <div class="setting-item">
+                                <strong>Chunk Overlap:</strong>
+                                <p id="setting-chunk-overlap">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+            </section>
+
+            <!-- Console Output -->
+            <section class="console-section">
+                <details>
+                    <summary><h2>Console Output</h2></summary>
+                    <div id="console-output" class="console-output">
+                        <p class="console-line">Waiting for output...</p>
+                    </div>
+                </details>
+            </section>
+        </main>
+
+        <footer>
+            <p>Cosmos Predict 2.5 by NVIDIA | Simple Web Interface</p>
+        </footer>
+    </div>
+
+    <script>
+        const jobId = '{{ job_id }}';
+        let pollInterval;
+        let lastLineCount = 0;
+
+        function updateStatus() {
+            fetch(`/api/status/${jobId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update status badge
+                    const statusElem = document.getElementById('status');
+                    statusElem.textContent = data.status.toUpperCase();
+                    statusElem.className = `status-badge status-${data.status}`;
+
+                    // Update stage
+                    document.getElementById('stage').textContent = data.stage || 'Processing...';
+
+                    // Update progress bar
+                    const progress = data.progress || 0;
+                    document.getElementById('progress-fill').style.width = progress + '%';
+                    document.getElementById('progress-text').textContent = progress + '%';
+
+                    // Update settings
+                    if (data.settings) {
+                        document.getElementById('setting-prompt').textContent = data.settings.prompt || '-';
+                        document.getElementById('setting-negative-prompt').textContent = data.settings.negative_prompt || '-';
+                        document.getElementById('setting-frames').textContent = data.settings.num_output_frames || '-';
+                        document.getElementById('setting-resolution').textContent = data.settings.resolution || '-';
+                        document.getElementById('setting-seed').textContent = data.settings.seed || '-';
+                        document.getElementById('setting-guidance').textContent = data.settings.guidance || '-';
+                        document.getElementById('setting-autoregressive').textContent = data.settings.enable_autoregressive ? 'Yes' : 'No';
+                        document.getElementById('setting-chunk-size').textContent = data.settings.chunk_size || '-';
+                        document.getElementById('setting-chunk-overlap').textContent = data.settings.chunk_overlap || '-';
+                    }
+
+                    // Update console output (only new lines)
+                    if (data.output_lines && data.output_lines.length > lastLineCount) {
+                        const consoleOutput = document.getElementById('console-output');
+                        const newLines = data.output_lines.slice(lastLineCount);
+
+                        if (lastLineCount === 0) {
+                            consoleOutput.innerHTML = '';
+                        }
+
+                        newLines.forEach(line => {
+                            const lineElem = document.createElement('p');
+                            lineElem.className = 'console-line';
+                            lineElem.textContent = line;
+                            consoleOutput.appendChild(lineElem);
+                        });
+
+                        lastLineCount = data.output_lines.length;
+
+                        // Auto-scroll to bottom
+                        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                    }
+
+                    // Handle completion
+                    if (data.status === 'completed') {
+                        clearInterval(pollInterval);
+                        showVideoPlayer(data.video_file, data.json_config);
+                    }
+
+                    // Handle failure
+                    if (data.status === 'failed') {
+                        clearInterval(pollInterval);
+                        showError(data.error || 'Unknown error occurred');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching status:', error);
+                });
+        }
+
+        function showVideoPlayer(videoFile, configFile) {
+            const videoSection = document.getElementById('video-section');
+            const videoSource = document.getElementById('video-source');
+            const videoPlayer = document.getElementById('video-player');
+
+            videoSource.src = `/preview/${videoFile}`;
+            videoPlayer.load();
+            videoSection.style.display = 'block';
+
+            // Set download links
+            document.getElementById('download-video-btn').href = `/download/${videoFile}`;
+            document.getElementById('download-config-btn').href = `/download/${configFile}`;
+        }
+
+        function showError(errorMessage) {
+            const errorSection = document.getElementById('error-section');
+            document.getElementById('error-message').textContent = errorMessage;
+            errorSection.style.display = 'block';
+        }
+
+        // Start polling every 2 seconds
+        pollInterval = setInterval(updateStatus, 2000);
+        updateStatus(); // Initial call
+    </script>
+</body>
+</html>

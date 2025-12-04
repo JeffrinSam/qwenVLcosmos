@@ -1,0 +1,11 @@
+{
+  "name": "general_g1de2",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/Inputimg/humnoid/g1de2.jpg",
+  "prompt": "**[CAMERA STATE]** STATIC CAMERA: Top-down view, 1.5m height above the robot, FOV: 90 degrees, Background: FROZEN **[ACTION - Based on user prompt \"test walk forward\"]** Starting state: The robot is positioned with its legs extended, facing forward, and the stapler is placed between them. Motion sequence: - t=0-0.5s: The robot's left leg begins to extend smoothly, moving forward by 0.1m. - t=0.5-1s: The right leg extends simultaneously, moving forward by 0.1m. - t=1-1.5s: Both legs retract gradually, returning to their initial extended position. - t=1.5-2s: The robot's left leg extends again, moving forward by 0.1m. - t=2-2.5s: The right leg extends, moving forward by 0.1m. - t=2.5-3s: Both legs retract, returning to the initial extended position. Target: The robot has completed one full step forward, with both legs extended and the stapler still between them. **[PHYSICS]** - Gravity is accounted for in the leg movements. - Smooth acceleration and deceleration are used throughout the motion. - The robot's movement is controlled and realistic, avoiding any instant teleportation. - The robot's legs are rigid, ensuring precise and stable motion.",
+  "negative_prompt": "unrealistic motion, teleportation, object morphing, floating objects ignoring gravity, instant acceleration, shaky camera, excessive motion blur, poor lighting, out of focus, jerky motion, physics violations, collision through objects",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "image2world"
+}

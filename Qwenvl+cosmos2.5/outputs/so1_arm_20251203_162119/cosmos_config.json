@@ -1,0 +1,14 @@
+{
+  "inference_type": "image2world",
+  "name": "so1_arm_20251203_162119",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/Qwenvl+cosmos2.5/so1_arm/../../Inputimg/so1/1.jpg",
+  "prompt": "[CAMERA STATE]: STATIC CAMERA: 1.5m above workspace, 45-degree angle CAMERA VELOCITY = 0 (fixed position) FOV: 90 degrees Background: FROZEN, no camera motion [ACTION - SINGLE ARM TASK]: Starting pose: Gripper at 30cm left of center, 50cm height Motion sequence: - t=0-1s: Moves right 25cm at 10 cm/s - t=1-2s: Descends 12cm, opens to 8cm - t=2-3s: Closes to 5.5cm around bottle - t=3-4s: Lifts 8cm, moves left 30cm to target Target: 20cm right of center, 50cm height [PHYSICS]: - Smooth acceleration: 0 → 10cm/s over 0.5s - Gravity: bottle stable when gripped - Workspace limit: 50cm radius - No instant motion, realistic joint speeds",
+  "negative_prompt": "floating arm, flying objects, unrealistic physics, instant motion, teleportation, blurry, distorted gripper, morphing shape, inconsistent lighting, motion blur, shaky camera",
+  "enable_autoregressive": false,
+  "num_output_frames": 20,
+  "chunk_size": 77,
+  "chunk_overlap": 1,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7
+}

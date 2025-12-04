@@ -1,0 +1,8 @@
+python examples/inference.py -i assets/base/robot_pouring.json -o outputs/base_video2world --inference-type=VIDEO2WORLD --offload-diffusion-model --offload-tokenizer --offload-text-encoder"
+
+python examples/inference.py -i assets/base/robot_pouring.json -o outputs/lora_video2world --inference-type=VIDEO2WORLD  --offload-diffusion-model --offload-tokenizer --offload-text-encoder
+
+python examples/inference.py -i assets/base/robot_pouring.json -o outputs/lora_video2world --inference-type=VIDEO2WORLD --checkpoint-path /home/humanoid/Downloads/cosmos-predict2.5/so1modellora/model_ema_bf16.pt --experiment predict2_lora_training_2b_cosmos_nemo_assets --offload-tokenizer --offload-text-encoder
+
+
+python examples/inference.py -i assets/base/bus_terminal_long.json -o outputs/lora_video2world --inference-type=IMAGE2WORLD --checkpoint-path /home/humanoid/Downloads/cosmos-predict2.5/so1modellora/model_ema_bf16.pt --experiment predict2_lora_training_2b_cosmos_nemo_assets --offload-diffusion-model --offload-tokenizer --offload-text-encoder

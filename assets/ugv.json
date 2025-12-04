@@ -1,0 +1,14 @@
+{
+    "inference_type": "image2world",
+    "name": "ugv_approach_final3.1",
+    "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/Inputimg/4.jpg",
+    "prompt": "PHYSICAL SIMULATION: GROUND ROBOT APPROACH. \n\n[SETUP]: The input image contains a grey wheeled UGV (Unmanned Ground Vehicle) on an office carpet. \n[CAMERA STATE]: The camera is a STATIC TRIPOD fixed at floor level. CAMERA VELOCITY = 0. The background walls and furniture are FROZEN and do not move.\n[ACTION VECTOR]: The UGV robot pivots 180 degrees to face the lens. It then accelerates along the Z-AXIS directly towards the static camera position. \n[OUTCOME]: The robot stays on the ground (planar movement) and gets significantly larger in the frame as it closes the distance to the viewer.",
+    "enable_autoregressive": true,
+    "num_output_frames": 77,
+    "chunk_size": 77,
+    "chunk_overlap": 1,
+    "resolution":"432,768",
+    "seed": 42,
+    "guidance": 7,
+    "negative_prompt": "drone, aerial flight, hovering, camera dolly, camera moving forward, zooming camera, floating robot, flying robot, distorted wheels, morphing shape, shaky camera, motion blur on background, changing background geometry."
+}
