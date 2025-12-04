@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generation Status - Cosmos Predict 2.5</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Generation Status</h1>
+            <p class="subtitle">Job ID: {{ job_id[:8] }}</p>
+        </header>
+
+        <div class="status-container">
+            <!-- Status Card -->
+            <div class="status-card">
+                <div class="status-header">
+                    <div id="status-icon" class="status-icon">⏳</div>
+                    <div>
+                        <div id="status-text" class="status-text">Processing...</div>
+                        <div id="stage-text" class="stage-text">{{ job.get('stage', 'Starting...') }}</div>
+                    </div>
+                </div>
+
+                <!-- Progress Info -->
+                <div id="progress-info" class="progress-info">
+                    <!-- Will be populated dynamically -->
+                </div>
+
+                <!-- Video Preview (when completed) -->
+                <div id="video-section" class="video-section hidden">
+                    <h3>✅ Video Generated!</h3>
+                    <video id="video-player" controls class="video-player">
+                        <source id="video-source" src="" type="video/mp4">
+                        Your browser does not support video playback.
+                    </video>
+                    <div class="download-buttons">
+                        <a id="download-video" href="#" class="download-btn">⬇️ Download Video</a>
+                        <a id="download-prompt" href="#" class="download-btn">📄 Download Prompt</a>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="error-section" class="error-section hidden">
+                    <h3>❌ Generation Failed</h3>
+                    <div id="error-message" class="error-message"></div>
+                </div>
+
+                <!-- Console Output -->
+                <div class="console-section">
+                    <h3>📋 Console Output</h3>
+                    <div id="console-output" class="console-output">
+                        {% if job.output_lines %}
+                            {% for line in job.output_lines %}
+                                <div>{{ line }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="action-buttons">
+                <a href="{{ url_for('index') }}" class="action-btn">🔄 New Generation</a>
+            </div>
+        </div>
+
+        <footer>
+            <p>Cosmos Predict 2.5 + Qwen2.5-VL-7B | NVIDIA Physical AI</p>
+        </footer>
+    </div>
+
+    <script>
+        const jobId = "{{ job_id }}";
+        let pollInterval;
+
+        function updateStatus() {
+            fetch(`/api/status/${jobId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update status
+                    const statusIcon = document.getElementById('status-icon');
+                    const statusText = document.getElementById('status-text');
+                    const stageText = document.getElementById('stage-text');
+
+                    if (data.status === 'completed') {
+                        statusIcon.textContent = '✅';
+                        statusText.textContent = 'Completed!';
+                        stageText.textContent = data.stage || 'Video ready';
+
+                        // Show video
+                        const videoSection = document.getElementById('video-section');
+                        const videoPlayer = document.getElementById('video-player');
+                        const videoSource = document.getElementById('video-source');
+                        const downloadVideo = document.getElementById('download-video');
+                        const downloadPrompt = document.getElementById('download-prompt');
+
+                        if (data.video_file) {
+                            videoSource.src = `/preview/${data.video_file}`;
+                            videoPlayer.load();
+                            downloadVideo.href = `/outputs/${data.video_file}`;
+                            videoSection.classList.remove('hidden');
+                        }
+
+                        if (data.prompt_file) {
+                            downloadPrompt.href = `/outputs/${data.prompt_file}`;
+                        }
+
+                        clearInterval(pollInterval);
+                    } else if (data.status === 'failed') {
+                        statusIcon.textContent = '❌';
+                        statusText.textContent = 'Failed';
+                        stageText.textContent = data.error || 'An error occurred';
+
+                        const errorSection = document.getElementById('error-section');
+                        const errorMessage = document.getElementById('error-message');
+                        errorMessage.textContent = data.error || 'Unknown error';
+                        errorSection.classList.remove('hidden');
+
+                        clearInterval(pollInterval);
+                    } else {
+                        statusIcon.textContent = '⏳';
+                        statusText.textContent = data.status || 'Processing...';
+                        stageText.textContent = data.stage || '';
+                    }
+
+                    // Update progress info with prompts and settings
+                    const progressInfo = document.getElementById('progress-info');
+                    let infoHtml = '';
+
+                    if (data.settings) {
+                        infoHtml += `<div class="info-item"><span class="info-label">Mode:</span><span class="info-value">${escapeHtml(data.settings.mode)}</span></div>`;
+                    }
+
+                    if (data.user_prompt) {
+                        infoHtml += `<div class="info-item"><span class="info-label">Your Prompt:</span><span class="info-value">${escapeHtml(data.user_prompt)}</span></div>`;
+                    }
+
+                    if (data.extended_prompt && data.extended_prompt !== data.user_prompt) {
+                        infoHtml += `<div class="info-item full-width"><span class="info-label">🤖 AI Extended Prompt:</span><pre class="info-value prompt-box">${escapeHtml(data.extended_prompt)}</pre></div>`;
+                    }
+
+                    if (data.negative_prompt) {
+                        infoHtml += `<div class="info-item full-width"><span class="info-label">Negative Prompt:</span><pre class="info-value prompt-box">${escapeHtml(data.negative_prompt)}</pre></div>`;
+                    }
+
+                    if (data.settings) {
+                        infoHtml += `<div class="info-item"><span class="info-label">Frames:</span><span class="info-value">${data.settings.frames}</span></div>`;
+                        infoHtml += `<div class="info-item"><span class="info-label">Resolution:</span><span class="info-value">${data.settings.resolution}</span></div>`;
+                        infoHtml += `<div class="info-item"><span class="info-label">Seed:</span><span class="info-value">${data.settings.seed}</span></div>`;
+                        infoHtml += `<div class="info-item"><span class="info-label">Guidance:</span><span class="info-value">${data.settings.guidance}</span></div>`;
+                        if (data.settings.max_tokens) {
+                            infoHtml += `<div class="info-item"><span class="info-label">Max Tokens:</span><span class="info-value">${data.settings.max_tokens}</span></div>`;
+                        }
+                    }
+
+                    progressInfo.innerHTML = infoHtml;
+
+                    // Update console output with highlighting
+                    const consoleOutput = document.getElementById('console-output');
+                    if (data.output_lines && data.output_lines.length > 0) {
+                        consoleOutput.innerHTML = data.output_lines.map(line => {
+                            let cssClass = '';
+                            if (line.includes('✓') || line.includes('✅')) {
+                                cssClass = 'log-success';
+                            } else if (line.includes('❌') || line.includes('Error') || line.includes('Failed')) {
+                                cssClass = 'log-error';
+                            } else if (line.includes('Running:') || line.includes('Loading')) {
+                                cssClass = 'log-info';
+                            } else if (line.includes('Enhanced Prompt') || line.includes('CAMERA') || line.includes('PHYSICS')) {
+                                cssClass = 'log-important';
+                            }
+                            return `<div class="${cssClass}">${escapeHtml(line)}</div>`;
+                        }).join('');
+                        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching status:', error);
+                });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Poll every 2 seconds
+        updateStatus();
+        pollInterval = setInterval(updateStatus, 2000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "so1_arm_563df425943a4814afbcf20e3dfcbd",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/webinterfacemodule/uploads/563df425943a4814afbcf20e3dfcbd2d_4.jpg",
+  "prompt": "[CAMERA STATE]: STATIC CAMERA: 1.5m above workspace, 45-degree angle CAMERA VELOCITY = 0 (fixed position) FOV: 90 degrees Background: FROZEN, no camera motion [ACTION - SINGLE ARM TASK]: Starting pose: Gripper at 10cm left of center, 30cm height Motion sequence: - t=0-1s: Moves right 20cm at 10 cm/s - t=1-2s: Descends 15cm, opens to 8cm - t=2-3s: Closes to 5.5cm around marker - t=3-5s: Lifts 8cm, moves forward 25cm to blue container Target: Marker placed inside blue container [PHYSICS]: - Smooth acceleration: 0 \u2192 10cm/s over 0.5s - Gravity: object stable when gripped - Workspace limit: 50cm radius - No instant motion, realistic joint speeds",
+  "negative_prompt": "unrealistic speed, teleportation, object morphing, floating objects ignoring gravity, workspace boundary violations, collision with tabletop, gripper slipping, shaky camera, motion blur during precision tasks, poor lighting, out of focus, jerky motion, unrealistic acceleration, arm passing through objects, sudden position jumps",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "image2world"
+}

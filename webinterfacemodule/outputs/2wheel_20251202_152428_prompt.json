@@ -1,0 +1,12 @@
+{
+  "name": "2wheel_mobile_d14df8a6d21846b48a0745e299b275",
+  "prompt_path": "uploads/d14df8a6d21846b48a0745e299b275aa_photo_5271514933969490246_y.jpg",
+  "prompt": "**[CAMERA STATE]:** - STATIC CAMERA: External fixed at [position] (\"4m from robot, floor level, frontal view\") - CAMERA VELOCITY = 0 - Background: FROZEN **[ACTION - NAVIGATION]:** Starting position: [robot centered, facing forward] Navigation sequence with EXACT measurements: - Phase 1 (t=0-2s): \"Accelerates from rest to 0.5 m/s forward\" - Phase 2 (t=2-5s): \"Cruises at steady 0.5 m/s, travels 2.0 meters forward\" - Phase 3 (t=5-7s): \"Executes left turn, radius 1.5m, reduces to 0.3 m/s\" - Phase 4 (t=7-8s): \"Decelerates smoothly to stop at target position\" Final position: [centered, slightly turned left, stopped] **[PHYSICS]:** - Wheels maintain ground contact on [carpet surface] - Smooth acceleration: 0 \u2192 0.5 m/s over 2s - Differential drive: Enables 1.5m turn radius - Friction on carpet: Affects traction - No floating, instant rotation, or teleportation",
+  "negative_prompt": "flying robot, hovering, aerial drone, floating above ground, wheels not touching floor, sliding without wheel rotation, instant rotation, teleportation, passing through walls, unrealistic speed, jerky motion, robot tipping over unrealistically, wheels spinning without traction, background not moving correctly with robot motion, camera perspective errors, motion blur on stationary objects, robot morphing or changing shape, unstable camera shake, poor lighting, out of focus.",
+  "num_frames": 77,
+  "height": 432,
+  "width": 768,
+  "seed": 42,
+  "guidance": 7.0,
+  "inference_type": "image2world"
+}

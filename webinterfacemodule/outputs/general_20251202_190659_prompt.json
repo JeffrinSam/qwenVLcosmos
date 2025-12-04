@@ -1,0 +1,11 @@
+{
+  "name": "general_805a2a32c6cd4d0fa3c1652695bb25",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/webinterfacemodule/uploads/805a2a32c6cd4d0fa3c1652695bb25cd_4.jpg",
+  "prompt": "**[CAMERA STATE]** STATIC CAMERA: \"elevated 45-degree view, 1.2m height\" CAMERA VELOCITY = 0 FOV: 90 degrees Background: FROZEN **[ACTION - Based on user prompt \"navigate to the table\"]** Starting state: The robot is positioned near the center of the room, facing slightly towards the left side of the image. Motion sequence: - t=0-2s: The robot begins to move forward at a steady velocity of 0.5 m/s. - t=2-4s: The robot turns right by 90 degrees, maintaining a smooth and controlled rotation. - t=4-6s: The robot continues moving forward at the same velocity until it reaches the table. Target: The robot will be positioned directly in front of the table, facing it. **[PHYSICS]** - Gravity is accounted for, ensuring the robot maintains stability. - The robot's movement is smooth and gradual, avoiding any abrupt changes in direction or speed. - The robot's wheels provide sufficient traction to navigate the carpeted floor without slipping. - The robot's path is planned to avoid obstacles such as the coat rack and the desk area.",
+  "negative_prompt": "unrealistic motion, teleportation, object morphing, floating objects ignoring gravity, instant acceleration, shaky camera, excessive motion blur, poor lighting, out of focus, jerky motion, physics violations, collision through objects",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "image2world"
+}

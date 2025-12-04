@@ -1,0 +1,11 @@
+{
+  "name": "general_cc5eaa26cb8547658917b2f7c946b8",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/webinterfacemodule/uploads/cc5eaa26cb8547658917b2f7c946b8f0_photo_5271514933969490246_y.jpg",
+  "prompt": "**[CAMERA STATE]** STATIC CAMERA: Front view at 1.5m height, facing directly at the robot CAMERA VELOCITY = 0 FOV: 60 degrees Background: FROZEN **[ACTION - Based on user prompt \"the object just move forward\"]** Starting state: The robot is stationary, positioned upright on the floor. Motion sequence: - t=0-0.5s: The robot begins to accelerate forward smoothly, reaching a velocity of 0.5 m/s. - t=0.5-1.5s: The robot maintains a steady speed of 0.5 m/s, moving forward in a straight line. - t=1.5-2s: The robot gradually decelerates to a stop, coming to a complete halt. **[PHYSICS]** - Gravity is negligible as the robot is on a flat surface. - The robot's movement is smooth and controlled, with no sudden jerks or stops. - The robot's wheels provide traction, ensuring a controlled forward motion without slipping. - The robot's structure remains rigid throughout the motion, maintaining stability and precision.",
+  "negative_prompt": "unrealistic motion, teleportation, object morphing, floating objects ignoring gravity, instant acceleration, shaky camera, excessive motion blur, poor lighting, out of focus, jerky motion, physics violations, collision through objects",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "image2world"
+}

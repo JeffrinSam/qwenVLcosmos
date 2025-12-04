@@ -1,0 +1,382 @@
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
+import os
+import subprocess
+import threading
+import time
+from datetime import datetime
+import uuid
+import re
+import json
+from pathlib import Path
+from flask_httpauth import HTTPBasicAuth
+from werkzeug.security import generate_password_hash, check_password_hash
+
+app = Flask(__name__)
+app.secret_key = 'cosmos-predict-gui-secret-key'
+auth = HTTPBasicAuth()
+
+# ==================== AUTHENTICATION CONFIGURATION ====================
+# Change these credentials to secure your GUI
+# Set AUTH_ENABLED to False to disable password protection
+AUTH_ENABLED = True
+AUTH_USERNAME = 'admin'
+AUTH_PASSWORD = 'cosmos2025'  # ⚠️ CHANGE THIS PASSWORD FOR SECURITY!
+# =====================================================================
+
+users = {
+    AUTH_USERNAME: generate_password_hash(AUTH_PASSWORD)
+}
+
+@auth.verify_password
+def verify_password(username, password):
+    """Verify username and password for HTTP Basic Auth"""
+    if not AUTH_ENABLED:
+        return True
+    if username in users and check_password_hash(users.get(username), password):
+        return username
+    return None
+
+# Configuration
+UPLOAD_FOLDER = 'uploads'
+OUTPUT_FOLDER = 'outputs'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB max file size
+
+# Project paths
+PROJECT_ROOT = Path(__file__).parent.parent.absolute()
+QWEN_DIR = PROJECT_ROOT / 'Qwen_instructor'
+
+# Robot configurations
+ROBOT_MODES = {
+    '3dof': {
+        'name': '3 DOF Manipulator',
+        'script_image': 'prompt_extender_3dof_manipulator.py',
+        'script_text': 'prompt_extender_3dof_manipulator_text.py',
+        'description': 'SCARA, delta, cartesian robots for pick-and-place',
+        'icon': '🦾'
+    },
+    'mobile': {
+        'name': 'Mobile Robot (UGV)',
+        'script_image': 'prompt_extender_mobile_robot.py',
+        'script_text': 'prompt_extender_mobile_robot_text.py',
+        'description': 'Wheeled/tracked robots for navigation',
+        'icon': '🤖'
+    },
+    'bimanual': {
+        'name': 'Bimanual UR3',
+        'script_image': 'prompt_extender_bimanual_ur3.py',
+        'script_text': 'prompt_extender_bimanual_ur3_text.py',
+        'description': 'Dual-arm coordination and manipulation',
+        'icon': '🦿'
+    }
+}
+
+# Global status tracking
+generation_status = {}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def run_prompt_extender(job_id, mode, robot_type, image_path, prompt, max_tokens=600):
+    """Run prompt extender and track status"""
+    try:
+        generation_status[job_id]['status'] = 'extending_prompt'
+        generation_status[job_id]['stage'] = 'Analyzing with Qwen2.5-VL...'
+
+        robot_config = ROBOT_MODES[robot_type]
+
+        # Select script based on mode
+        if mode == 'image':
+            script_name = robot_config['script_image']
+        else:
+            script_name = robot_config['script_text']
+
+        script_path = QWEN_DIR / script_name
+
+        # Generate output filename
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        output_base = f"{robot_type}_{mode}_{timestamp}"
+        output_txt = str(Path(OUTPUT_FOLDER) / f"{output_base}_prompt.txt")
+
+        # Build command
+        cmd = [
+            'python3',
+            str(script_path),
+            '--prompt', prompt,
+            '--output', output_txt,
+            '--max-tokens', str(max_tokens)
+        ]
+
+        # Add image if in image mode
+        if mode == 'image' and image_path:
+            cmd.extend(['--image', image_path])
+
+        generation_status[job_id]['output_lines'] = []
+        generation_status[job_id]['output_lines'].append(f"Running: {' '.join(cmd)}")
+
+        # Run prompt extender
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
+        )
+
+        # Capture output
+        for line in process.stdout:
+            generation_status[job_id]['output_lines'].append(line.strip())
+
+        process.wait()
+
+        if process.returncode != 0:
+            raise Exception(f"Prompt extender failed with code {process.returncode}")
+
+        # Find generated JSON file
+        json_file = output_txt.replace('.txt', '.json')
+
+        if not os.path.exists(json_file):
+            raise Exception(f"JSON file not created: {json_file}")
+
+        generation_status[job_id]['prompt_file'] = output_txt
+        generation_status[job_id]['json_file'] = json_file
+
+        return json_file
+
+    except Exception as e:
+        generation_status[job_id]['status'] = 'failed'
+        generation_status[job_id]['error'] = str(e)
+        generation_status[job_id]['output_lines'].append(f"ERROR: {e}")
+        raise
+
+def run_cosmos_inference(job_id, json_config_path, output_name):
+    """Run Cosmos Predict inference"""
+    try:
+        generation_status[job_id]['status'] = 'generating_video'
+        generation_status[job_id]['stage'] = 'Running Cosmos Predict 2.5...'
+
+        output_dir = str(Path(OUTPUT_FOLDER) / output_name)
+
+        # Build inference command
+        cmd = [
+            'python3',
+            str(PROJECT_ROOT / 'examples' / 'inference.py'),
+            '-i', json_config_path,
+            '-o', output_dir
+        ]
+
+        generation_status[job_id]['output_lines'].append(f"\nCosmos Inference: {' '.join(cmd)}")
+
+        # Run inference
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            cwd=str(PROJECT_ROOT)
+        )
+
+        # Capture output
+        for line in process.stdout:
+            generation_status[job_id]['output_lines'].append(line.strip())
+
+        process.wait()
+
+        if process.returncode != 0:
+            raise Exception(f"Cosmos inference failed with code {process.returncode}")
+
+        # Find generated video
+        video_files = list(Path(output_dir).glob('*.mp4'))
+        if not video_files:
+            raise Exception("No video file generated")
+
+        generation_status[job_id]['video_file'] = str(video_files[0])
+        generation_status[job_id]['status'] = 'completed'
+        generation_status[job_id]['stage'] = 'Video generation complete!'
+        generation_status[job_id]['end_time'] = datetime.now()
+
+    except Exception as e:
+        generation_status[job_id]['status'] = 'failed'
+        generation_status[job_id]['error'] = str(e)
+        generation_status[job_id]['output_lines'].append(f"ERROR: {e}")
+        generation_status[job_id]['end_time'] = datetime.now()
+
+def generate_video_async(job_id, mode, robot_type, image_path, prompt, **kwargs):
+    """Run full pipeline asynchronously"""
+    try:
+        generation_status[job_id]['status'] = 'starting'
+        generation_status[job_id]['start_time'] = datetime.now()
+        generation_status[job_id]['output_lines'] = []
+
+        # Step 1: Run prompt extender
+        json_file = run_prompt_extender(
+            job_id, mode, robot_type, image_path, prompt,
+            max_tokens=kwargs.get('max_tokens', 600)
+        )
+
+        # Step 2: Update JSON with advanced settings
+        with open(json_file, 'r') as f:
+            config = json.load(f)
+
+        if 'seed' in kwargs and kwargs['seed'] != '':
+            config['seed'] = int(kwargs['seed'])
+        if 'guidance' in kwargs:
+            config['guidance'] = float(kwargs['guidance'])
+        if 'num_frames' in kwargs:
+            config['num_output_frames'] = int(kwargs['num_frames'])
+        if 'resolution' in kwargs:
+            config['resolution'] = kwargs['resolution']
+        if 'autoregressive' in kwargs:
+            config['enable_autoregressive'] = kwargs['autoregressive']
+
+        with open(json_file, 'w') as f:
+            json.dump(config, f, indent=2)
+
+        # Step 3: Run Cosmos inference
+        output_name = Path(json_file).stem
+        run_cosmos_inference(job_id, json_file, output_name)
+
+    except Exception as e:
+        print(f"[Job {job_id[:8]}] Error: {e}")
+        generation_status[job_id]['status'] = 'failed'
+        generation_status[job_id]['error'] = str(e)
+        if 'output_lines' not in generation_status[job_id]:
+            generation_status[job_id]['output_lines'] = []
+        generation_status[job_id]['output_lines'].append(f"FATAL ERROR: {e}")
+
+@app.route('/')
+@auth.login_required
+def index():
+    """Main page"""
+    return render_template('index.html', robot_modes=ROBOT_MODES)
+
+@app.route('/generate', methods=['POST'])
+@auth.login_required
+def generate():
+    """Handle video generation request"""
+    try:
+        # Get form data
+        mode = request.form.get('mode')  # 'image' or 'text'
+        robot_type = request.form.get('robot_type')
+        prompt = request.form.get('prompt', '')
+
+        if not mode or not robot_type or not prompt:
+            flash('Missing required fields', 'error')
+            return redirect(url_for('index'))
+
+        # Handle image upload for image mode
+        image_path = None
+        if mode == 'image':
+            if 'image' not in request.files:
+                flash('No image file uploaded', 'error')
+                return redirect(url_for('index'))
+
+            file = request.files['image']
+            if file.filename == '':
+                flash('No image file selected', 'error')
+                return redirect(url_for('index'))
+
+            if file and allowed_file(file.filename):
+                filename = f"{uuid.uuid4()}_{file.filename}"
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(image_path)
+            else:
+                flash('Invalid file type', 'error')
+                return redirect(url_for('index'))
+
+        # Create job
+        job_id = str(uuid.uuid4())
+        generation_status[job_id] = {
+            'mode': mode,
+            'robot_type': robot_type,
+            'prompt': prompt,
+            'image_path': image_path,
+            'status': 'queued'
+        }
+
+        # Get advanced settings
+        kwargs = {
+            'max_tokens': int(request.form.get('max_tokens', 600)),
+            'seed': request.form.get('seed', ''),
+            'guidance': float(request.form.get('guidance', 7.0)),
+            'num_frames': int(request.form.get('num_frames', 77)),
+            'resolution': request.form.get('resolution', '432,768'),
+            'autoregressive': request.form.get('autoregressive') == 'on'
+        }
+
+        # Start async generation
+        thread = threading.Thread(
+            target=generate_video_async,
+            args=(job_id, mode, robot_type, image_path, prompt),
+            kwargs=kwargs
+        )
+        thread.daemon = True
+        thread.start()
+
+        return redirect(url_for('status', job_id=job_id))
+
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'error')
+        return redirect(url_for('index'))
+
+@app.route('/status/<job_id>')
+@auth.login_required
+def status(job_id):
+    """Show generation status"""
+    if job_id not in generation_status:
+        flash('Job not found', 'error')
+        return redirect(url_for('index'))
+
+    return render_template('status.html', job_id=job_id, job=generation_status[job_id])
+
+@app.route('/api/status/<job_id>')
+@auth.login_required
+def api_status(job_id):
+    """API endpoint for status updates"""
+    if job_id not in generation_status:
+        return jsonify({'error': 'Job not found'}), 404
+
+    job = generation_status[job_id]
+    return jsonify({
+        'status': job.get('status', 'unknown'),
+        'stage': job.get('stage', ''),
+        'output_lines': job.get('output_lines', [])[-50:],  # Last 50 lines
+        'video_file': job.get('video_file'),
+        'prompt_file': job.get('prompt_file'),
+        'error': job.get('error')
+    })
+
+@app.route('/outputs/<path:filename>')
+@auth.login_required
+def download_file(filename):
+    """Download generated files"""
+    return send_from_directory(OUTPUT_FOLDER, filename, as_attachment=True)
+
+@app.route('/preview/<path:filename>')
+@auth.login_required
+def preview_video(filename):
+    """Preview video file"""
+    return send_from_directory(OUTPUT_FOLDER, filename)
+
+if __name__ == '__main__':
+    # Create necessary directories
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+    print("=" * 80)
+    print("🎬 Cosmos Predict 2.5 Web Interface")
+    print("=" * 80)
+    print(f"Authentication: {'Enabled' if AUTH_ENABLED else 'Disabled'}")
+    if AUTH_ENABLED:
+        print(f"Username: {AUTH_USERNAME}")
+        print(f"Password: {AUTH_PASSWORD}")
+        print("⚠️  CHANGE THE PASSWORD FOR SECURITY!")
+    print("=" * 80)
+    print("Starting server on http://0.0.0.0:5000")
+    print("=" * 80)
+
+    app.run(host='0.0.0.0', port=5000, debug=True)

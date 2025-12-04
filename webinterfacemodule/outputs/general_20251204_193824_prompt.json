@@ -1,0 +1,11 @@
+{
+  "name": "general_93100439d8c448018aa75196f6eca4",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/webinterfacemodule/uploads/93100439d8c448018aa75196f6eca495_dron.jpeg",
+  "prompt": "[CAMERA STATE]: ELEVATED 45-DEGREE VIEW, 1.2M HEIGHT: The camera provides a clear view of the drone and the obstacle course. It captures the entire area where the drone will navigate, ensuring the drone's movements are visible throughout the sequence. [ACTION - Based on user prompt \"make the drone go through the gate in the right\"]: Starting state: The drone is positioned on the left side of the image, resting on a white box, facing towards the right. The drone is stationary, with its propellers off. Motion sequence: - t=0-2s: The drone takes off from the white box, accelerating smoothly to reach a cruising speed of 0.5 m/s. - t=2-4s: The drone maintains a steady altitude of 1 meter above the yellow foam blocks, navigating towards the first gate on the right. - t=4-6s: The drone approaches the gate at a controlled velocity, adjusting its altitude to 0.8 meters to clear the gate without colliding. - t=6-8s: The drone ascends smoothly to 1.2 meters, clearing the gate and continuing straight ahead. - t=8-10s: The drone descends back to 1 meter, maintaining a steady course as it navigates the obstacle course. Target: The drone successfully completes the task by passing through the gate on the right, maintaining a smooth and controlled trajectory throughout the maneuver. [PHYSICS]: - Smooth dynamics with realistic takeoff and landing. - Gravity affects the drone's altitude adjustments during the ascent and descent. - No instant teleportation; the drone follows a gradual and controlled motion. - Controlled velocities ensure the drone's movements are precise and realistic.",
+  "negative_prompt": "unrealistic motion, teleportation, object morphing, floating objects ignoring gravity, instant acceleration, shaky camera, excessive motion blur, poor lighting, out of focus, jerky motion, physics violations, collision through objects",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "image2world"
+}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmos Predict 2.5 - Robotics Video Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Cosmos Predict 2.5</h1>
+            <p class="subtitle">Physics-Based Robotics Video Generation</p>
+            <p class="subtitle-small">Powered by Qwen2.5-VL + NVIDIA Cosmos</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="main-content">
+            <form action="{{ url_for('generate') }}" method="post" enctype="multipart/form-data" class="generation-form">
+
+                <!-- Mode Selection -->
+                <div class="form-section">
+                    <h2>📋 Input Mode</h2>
+                    <div class="mode-selector">
+                        <label class="mode-option">
+                            <input type="radio" name="mode" value="image" checked onchange="toggleImageUpload()">
+                            <div class="mode-card">
+                                <div class="mode-icon">📷</div>
+                                <div class="mode-title">Image + Prompt</div>
+                                <div class="mode-desc">Analyze image with Qwen VL vision</div>
+                            </div>
+                        </label>
+                        <label class="mode-option">
+                            <input type="radio" name="mode" value="text" onchange="toggleImageUpload()">
+                            <div class="mode-card">
+                                <div class="mode-icon">📝</div>
+                                <div class="mode-title">Text-Only Prompt</div>
+                                <div class="mode-desc">Extend prompt without image</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Robot Type Selection -->
+                <div class="form-section">
+                    <h2>🤖 Robot Type</h2>
+                    <div class="robot-selector">
+                        {% for key, robot in robot_modes.items() %}
+                        <label class="robot-option">
+                            <input type="radio" name="robot_type" value="{{ key }}" {% if loop.first %}checked{% endif %}>
+                            <div class="robot-card">
+                                <div class="robot-icon">{{ robot.icon }}</div>
+                                <div class="robot-title">{{ robot.name }}</div>
+                                <div class="robot-desc">{{ robot.description }}</div>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Image Upload (conditional) -->
+                <div class="form-section" id="image-upload-section">
+                    <h2>📷 Input Image</h2>
+                    <div class="upload-area">
+                        <div id="drop-zone" class="drop-zone">
+                            <div class="upload-content">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <div class="upload-text">
+                                    <p class="primary-text">Drag & drop robot image here</p>
+                                    <p class="secondary-text">or <strong>click to browse</strong></p>
+                                    <p class="file-types">PNG, JPG, JPEG, GIF (max 20MB)</p>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="file" id="image" name="image" accept="image/*">
+                        <div id="preview-section" class="preview-section hidden">
+                            <img id="image-preview" alt="Preview" class="image-preview">
+                            <button type="button" id="remove-image" class="remove-image-btn">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prompt Input -->
+                <div class="form-section">
+                    <h2>💬 Task Description</h2>
+                    <div class="form-group">
+                        <label for="prompt">Describe what the robot should do</label>
+                        <textarea id="prompt" name="prompt" rows="4" required
+                            placeholder="Example: 'pick up red cube and place in box' or 'navigate forward 2 meters then turn left'"></textarea>
+                        <small>Simple, natural language description. The AI will expand it into a detailed physics-based prompt.</small>
+                    </div>
+                </div>
+
+                <!-- Advanced Settings -->
+                <div class="form-section">
+                    <h2>⚙️ Advanced Settings</h2>
+
+                    <div class="toggle-section">
+                        <button type="button" id="toggle-advanced" class="toggle-btn">
+                            Show Advanced Options <span id="toggle-icon">+</span>
+                        </button>
+                    </div>
+
+                    <div id="advanced-settings" class="advanced-settings" style="display: none;">
+
+                        <!-- Prompt Extension -->
+                        <div class="form-group">
+                            <label for="max_tokens">Max Tokens for Prompt Extension</label>
+                            <input type="number" id="max_tokens" name="max_tokens" value="600" min="300" max="1000" step="50">
+                            <small>Higher = more detailed prompts (600-650 recommended)</small>
+                        </div>
+
+                        <!-- Video Generation Settings -->
+                        <h3>Video Generation</h3>
+
+                        <div class="form-group">
+                            <label for="num_frames">Number of Frames</label>
+                            <input type="number" id="num_frames" name="num_frames" value="77" min="13" max="144" step="1">
+                            <small>77 frames = ~3.2s at 24fps (recommended), 144 = ~6s</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="resolution">Resolution (height,width)</label>
+                            <select id="resolution" name="resolution">
+                                <option value="432,768" selected>432×768 (Landscape)</option>
+                                <option value="768,432">768×432 (Portrait)</option>
+                                <option value="576,1024">576×1024 (HD Landscape)</option>
+                                <option value="1024,576">1024×576 (HD Portrait)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="seed">Random Seed (optional)</label>
+                            <input type="number" id="seed" name="seed" placeholder="42" min="0">
+                            <small>Leave empty for random. Use same seed for reproducibility.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="guidance">Guidance Scale</label>
+                            <input type="number" id="guidance" name="guidance" value="7.0" min="1" max="15" step="0.5">
+                            <small>7.0 = balanced (recommended), higher = more prompt adherence</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="autoregressive" name="autoregressive">
+                                Enable Autoregressive Mode
+                            </label>
+                            <small>Generate longer videos with sliding window (slower but longer output)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="submit-section">
+                    <button type="submit" class="submit-btn">
+                        🚀 Generate Video
+                    </button>
+                    <p class="submit-hint">This will analyze the image/prompt with Qwen2.5-VL, then generate a physics-based video with Cosmos Predict 2.5</p>
+                </div>
+            </form>
+        </div>
+
+        <footer>
+            <p>Cosmos Predict 2.5 + Qwen2.5-VL-7B | NVIDIA Physical AI</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

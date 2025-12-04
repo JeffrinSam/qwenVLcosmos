@@ -1,0 +1,128 @@
+# Docker Compose for Cosmos Predict 2.5 Web Interface
+# Production-ready configuration for RTX 5090
+# Version: 3.8+
+
+version: '3.8'
+
+services:
+  cosmos-web:
+    build:
+      context: ..
+      dockerfile: Docker101/Dockerfile
+      target: runtime  # Build specific stage
+    image: cosmos-predict2.5:latest
+    container_name: cosmos-predict-web
+    hostname: cosmos-web
+
+    # NVIDIA GPU runtime configuration
+    runtime: nvidia
+
+    # Environment variables (including memory optimizations)
+    environment:
+      # NVIDIA GPU settings
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+      - CUDA_VISIBLE_DEVICES=0
+
+      # PyTorch memory optimization for RTX 5090 (32GB VRAM)
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
+      - CUDA_LAUNCH_BLOCKING=0
+      - TORCH_CUDNN_V8_API_ENABLED=1
+
+      # Cache directories (match Dockerfile)
+      - HF_HOME=/workspace/.cache/huggingface
+      - TRANSFORMERS_CACHE=/workspace/.cache/huggingface/transformers
+      - HF_DATASETS_CACHE=/workspace/.cache/huggingface/datasets
+      - TORCH_HOME=/workspace/.cache/torch
+
+      # Memory management
+      - MALLOC_TRIM_THRESHOLD_=100000
+      - PYTHONUNBUFFERED=1
+
+      # Flask configuration
+      - FLASK_ENV=production
+      - FLASK_APP=webinterfacemodule/app.py
+
+    # Port mapping
+    ports:
+      - "5000:5000"  # Web interface
+
+    # Volume mounts for persistence and caching
+    volumes:
+      # Model directories (read-only to prevent accidental modification)
+      - ../Qwen_instructor_7B:/workspace/Qwen_instructor_7B:ro
+      - ../assets:/workspace/assets:ro
+
+      # Input/output directories (read-write for user uploads/outputs)
+      - ../Inputimg:/workspace/Inputimg:rw
+      - ../webinterfacemodule/uploads:/workspace/webinterfacemodule/uploads:rw
+      - ../webinterfacemodule/outputs:/workspace/webinterfacemodule/outputs:rw
+
+      # Cache volumes (avoid re-downloading models)
+      - huggingface-cache:/workspace/.cache/huggingface
+      - torch-cache:/workspace/.cache/torch
+
+    # Shared memory size (critical for PyTorch DataLoader with num_workers > 0)
+    shm_size: '16gb'
+
+    # Resource limits and reservations
+    deploy:
+      resources:
+        limits:
+          cpus: '16'  # Adjust based on your CPU
+          memory: 64G  # System RAM limit
+        reservations:
+          cpus: '8'
+          memory: 32G
+          devices:
+            - driver: nvidia
+              device_ids: ['0']  # RTX 5090 on GPU 0
+              capabilities: [gpu]
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Health check (matches Dockerfile)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s  # Allow time for models to load
+
+    # Logging configuration (prevent disk fill-up)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+
+    # Network configuration
+    networks:
+      - cosmos-network
+
+# Named volumes for caching
+volumes:
+  huggingface-cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOME}/.cache/huggingface  # Use host cache if available
+
+  torch-cache:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HOME}/.cache/torch
+
+# Custom network
+networks:
+  cosmos-network:
+    driver: bridge
+    name: cosmos-network

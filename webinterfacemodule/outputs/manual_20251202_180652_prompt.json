@@ -1,0 +1,11 @@
+{
+  "name": "manual_20251202_180652",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/webinterfacemodule/uploads/a41241075c5642428ac4adbf29a5e333_photo_5271514933969490246_y.jpg",
+  "prompt": "move forward",
+  "negative_prompt": "",
+  "num_output_frames": 77,
+  "resolution": "768,432",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "image2world"
+}

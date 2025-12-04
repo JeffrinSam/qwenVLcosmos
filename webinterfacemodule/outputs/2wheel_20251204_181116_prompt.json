@@ -1,0 +1,11 @@
+{
+  "name": "2wheel_mobile_371f2646644a40a2ae6fb9e20e00c8",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/webinterfacemodule/uploads/371f2646644a40a2ae6fb9e20e00c8ca_photo_5271514933969490253_y.jpg",
+  "prompt": "[CAMERA STATE]: ONBOARD CAMERA: Mounted on robot, moves with robot CAMERA VELOCITY = \"moves with robot\" Background: \"moves relative to robot\" [ACTION - NAVIGATION]: Starting position: The robot is positioned in the center of the office corridor, facing north. Navigation sequence with EXACT measurements: - Phase 1 (t=0-2s): \"Accelerates from rest to 0.5 m/s\" - Phase 2 (t=2-5s): \"Cruises at steady 0.5 m/s, travels 2.5 meters south\" - Phase 3 (t=5-7s): \"Executes a right turn, radius 1.5 meters, reducing speed to 0.3 m/s\" - Phase 4 (t=7-8s): \"Decelerates smoothly to stop 1 meter east of the starting point\" [PHYSICS]: - Wheels maintain ground contact on smooth carpet - Smooth acceleration: 0 \u2192 0.5 m/s over 2 seconds - Differential drive enables 1.5-meter turn radius - Friction: carpet affects traction - No floating, instant rotation, or teleportation Final position: The robot comes to rest at the exact starting point, facing east.",
+  "negative_prompt": "flying robot, hovering, aerial drone, floating above ground, wheels not touching floor, sliding without wheel rotation, instant rotation, teleportation, passing through walls, unrealistic speed, jerky motion, robot tipping over unrealistically, wheels spinning without traction, background not moving correctly with robot motion, camera perspective errors, motion blur on stationary objects, robot morphing or changing shape, unstable camera shake, poor lighting, out of focus.",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "image2world"
+}

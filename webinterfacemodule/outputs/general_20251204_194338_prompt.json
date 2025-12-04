@@ -1,0 +1,11 @@
+{
+  "name": "general_9769342b5ca1431292383f8f44a62d",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/webinterfacemodule/uploads/9769342b5ca1431292383f8f44a62d3e_dron.jpeg",
+  "prompt": "[CAMERA STATE]: ELEVATED 45-DEGREE VIEW, 1.2M HEIGHT: The camera provides a clear view of the drone and the obstacle course. It captures the entire scene, including the drone on the table and the yellow square gates ahead. [ACTION - Based on user prompt \"go through the square gate in front\"]: Starting state: The drone is resting on a white table, positioned near the left side of the image, facing towards the yellow square gates. Motion sequence: - t=0-2s: The drone takes off from the table, accelerating smoothly to reach a height of 0.5 meters above the ground. - t=2-4s: The drone ascends steadily, maintaining a constant velocity of 0.5 m/s, reaching a height of 1 meter above the ground. - t=4-6s: The drone approaches the first yellow square gate, adjusting its altitude to 0.8 meters to ensure a safe clearance. - t=6-8s: The drone maintains a steady altitude as it flies through the first gate, ensuring no collision with the gate. - t=8-10s: The drone continues its flight, descending slightly to 0.5 meters above the ground as it approaches the second gate. - t=10-12s: The drone ascends again, reaching a height of 0.8 meters to safely pass through the second gate. - t=12-14s: The drone maintains a steady altitude as it exits the second gate, continuing its flight path. - t=14-16s: The drone descends back to the table, landing smoothly without any abrupt movements. [PHYSICS]: - Smooth takeoff and ascent with controlled velocities. - Gravity is accounted for during the descent and ascent phases. - The drone maintains a safe distance from the gates, avoiding collisions. - No instant teleportation; the drone follows a realistic flight path. - Realistic dynamics throughout the flight, ensuring a smooth and controlled motion.",
+  "negative_prompt": "unrealistic motion, teleportation, object morphing, floating objects ignoring gravity, instant acceleration, shaky camera, excessive motion blur, poor lighting, out of focus, jerky motion, physics violations, collision through objects",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "image2world"
+}

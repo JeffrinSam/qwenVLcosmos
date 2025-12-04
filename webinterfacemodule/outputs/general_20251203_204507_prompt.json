@@ -1,0 +1,11 @@
+{
+  "name": "general_c4b3c7f643af499e8aabbd130f0510",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/webinterfacemodule/uploads/c4b3c7f643af499e8aabbd130f051016_photo_5271514933969490253_y.jpg",
+  "prompt": "**[CAMERA STATE]** STATIC CAMERA: \"elevated 45-degree view, 1.2m height\" CAMERA VELOCITY = 0 FOV: 90 degrees Background: FROZEN **[ACTION - Based on user prompt \"move toward me\"]** Starting state: A small robot is positioned near the center of the office space, facing away from the camera. Motion sequence: - t=0-2s: The robot begins to move forward, accelerating smoothly from rest to a steady velocity of 0.5 m/s. - t=2-4s: The robot continues moving forward at a constant velocity of 0.5 m/s, maintaining a straight path. - t=4-6s: The robot gradually decelerates to a stop, coming to a complete halt within 2 meters of the camera's starting position. **[PHYSICS]** - Gravity is negligible indoors. - The robot's movement is smooth and controlled, avoiding any abrupt changes in direction or speed. - The robot's wheels ensure stable ground contact, preventing slipping or skidding. - The robot's motion is constrained by the office floor, ensuring no collisions with obstacles. **[VISUAL QUALITY]** - Lighting is consistent throughout the scene. - No motion blur during the robot's movement. - Sharp focus on the robot as the main subject. - Realistic depth of field, keeping the robot in clear focus while slightly blurring the background.",
+  "negative_prompt": "unrealistic motion, teleportation, object morphing, floating objects ignoring gravity, instant acceleration, shaky camera, excessive motion blur, poor lighting, out of focus, jerky motion, physics violations, collision through objects",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "image2world"
+}

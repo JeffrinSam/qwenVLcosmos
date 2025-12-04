@@ -1,6 +1,12 @@
 {
     "inference_type": "image2world",
-    "name": "bus_terminal",
-    "input_path": "bus_terminal.jpg",
-    "prompt_path": "bus_terminal.txt"
+    "name": "ugv_approach_man_left3",
+    "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/Inputimg/1.jpg",
+    "prompt": "STATIC CAMERA SETUP: The camera is mounted on a fixed tripod, capturing the entire scene. CAMERA VELOCITY: 0 (No zoom, no dolly). ACTION: The existing black wheeled robot in the foreground first executes a sharp pivot turn to align with the man on the left (wearing the black shirt). It then executes a straight-line drive across the carpet toward him. The robot maintains a steady, smooth pace. TERMINATION: The robot comes to a complete, smooth stop exactly 1 meter in front of the man on the left. PHYSICS: The robot maintains constant wheel contact with the floor. The two men remain completely stationary throughout the video.",
+    "enable_autoregressive": true,
+    "num_output_frames": 73,
+    "resolution": "768,432",
+    "seed": 42,
+    "guidance": 7,
+    "negative_prompt": "robot flies, robot changes design, morphing objects, unstable camera, camera movement, zoom in, dolly, shaky footage, motion blur on background."
 }

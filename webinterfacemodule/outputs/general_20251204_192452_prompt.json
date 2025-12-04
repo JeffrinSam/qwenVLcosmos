@@ -1,0 +1,11 @@
+{
+  "name": "general_f290269e7929425c92898ddf8f18d3",
+  "input_path": "/home/humanoid/Downloads/cosmos-predict2.5/webinterfacemodule/uploads/f290269e7929425c92898ddf8f18d3a8_g1de2.jpg",
+  "prompt": "[CAMERA STATE]: ELEVATED 45-DEGREE VIEW, 1.2M HEIGHT: The camera is positioned above the table, providing a clear view of the robotic hands and the stapler. The angle allows for a good observation of the robotic hands' movements as they approach the stapler. [ACTION - Based on user prompt \"pick the object\"]: Starting state: The robotic hands are positioned above the table, with the grippers open and facing the stapler. The stapler is placed centrally on the table, with a slight distance between the hands and the object. Motion sequence: - t=0-0.5s: The robotic hands begin to move towards the stapler, extending their grippers to reach the stapler. The movement is smooth and controlled, with each joint moving in a coordinated fashion. - t=0.5-1.0s: The robotic hands close the grippers around the stapler, applying gentle pressure to ensure a secure hold without damaging the object. - t=1.0-1.5s: The robotic hands lift the stapler off the table, maintaining a steady grip. The movement is deliberate, ensuring the stapler is lifted without any sudden jerks. - t=1.5-2.0s: The robotic hands continue to lift the stapler, raising it to a comfortable height for the next step. The motion is smooth and controlled, with the grippers adjusting to maintain a firm hold on the stapler. Target: The stapler is securely held by the robotic hands, ready for the next action. [PHYSICS]: - Smooth dynamics and realistic motion, with each joint moving in a coordinated fashion. - Gravity is accounted for, ensuring the stapler is lifted without any sudden drops. - No instant teleportation; the motion is gradual and controlled. - Controlled velocities, with each segment of the motion taking a reasonable amount of time to complete.",
+  "negative_prompt": "unrealistic motion, teleportation, object morphing, floating objects ignoring gravity, instant acceleration, shaky camera, excessive motion blur, poor lighting, out of focus, jerky motion, physics violations, collision through objects",
+  "num_output_frames": 77,
+  "resolution": "432,768",
+  "seed": 42,
+  "guidance": 7,
+  "inference_type": "image2world"
+}
